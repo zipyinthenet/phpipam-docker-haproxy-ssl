@@ -1,0 +1,1 @@
+this directory is for deploy certificates to use with HAPROXY container

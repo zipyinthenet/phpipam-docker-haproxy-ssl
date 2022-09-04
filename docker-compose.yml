@@ -1,0 +1,69 @@
+# WARNING: Replace the example passwords with secure secrets.
+# WARNING: 'my_secret_phpipam_pass' and 'my_secret_mysql_root_pass'
+
+version: '3'
+
+services:
+  phpipam-web:
+    image: phpipam/phpipam-www:latest
+    container_name: phpipam-web
+    ports:
+      - "127.0.0.1:8081:80"
+    environment:
+      - TZ=Europe/London
+      - IPAM_DATABASE_HOST=phpipam-mariadb
+      - IPAM_DATABASE_PASS=my_secret_phpipam_pass
+      - IPAM_DATABASE_WEBHOST=%
+    restart: unless-stopped
+    volumes:
+      - ./phpipam-logo:/phpipam/css/images/logo
+    depends_on:
+      - phpipam-mariadb
+    networks:
+      - net-phpipam
+
+  phpipam-cron:
+    image: phpipam/phpipam-cron:latest
+    container_name: phpipam-cron
+    environment:
+      - TZ=Europe/London
+      - IPAM_DATABASE_HOST=phpipam-mariadb
+      - IPAM_DATABASE_PASS=my_secret_phpipam_pass
+      - SCAN_INTERVAL=1h
+    restart: unless-stopped
+    depends_on:
+      - phpipam-mariadb
+    networks:
+      - net-phpipam
+
+  phpipam-mariadb:
+    image: mariadb:latest
+    container_name: phpipam-mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=my_secret_mysql_root_pass
+    restart: unless-stopped
+    volumes:
+      - ./phpipam-db-data:/var/lib/mysql
+    networks:
+      - net-phpipam
+
+  HAProxy:
+    image: haproxy:latest
+    container_name: HAProxy
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./haproxy_ssl:/etc/ssl/certs
+      - ./haproxy_cfg:/usr/local/etc/haproxy
+    networks:
+      - net-phpipam
+
+#volumes:
+  #phpipam-db-data:
+  #phpipam-logo:
+networks:
+  net-phpipam:
+    name: net-phpipam
+    #external: true

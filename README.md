@@ -7,7 +7,7 @@ With this version you have a compose file with:
 - phpipam Mysql instance
 - HAProxy instance configure with bridge
 
-. . .
+* * *
 
 Network in compose is defined to create by the name net-phpipam , when you run this compose you can get a new bridge network that works with all the image that we run as containers 
 
